@@ -41,7 +41,7 @@ fn solve_with_proof(challenge: String, difficulty: u64) -> Vec<String> {
         hash = digest(hash.clone());
         proof.push(hash.clone());  
     }
-    return proof
+    proof
 }
 
 // verify takes a challenge string, a proof, and a difficulty and returns true if the proof is valid.
@@ -83,5 +83,5 @@ fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
         }
     }
 
-    return true
+    true
 }
