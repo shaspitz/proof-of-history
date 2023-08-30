@@ -1,3 +1,8 @@
+use sha256::digest;
+
 fn main() {
-    println!("Hello, world!");
+    let input = "hello";
+    let val = digest(input);
+    println!("{} => {}", input, val)
 }
+
