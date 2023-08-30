@@ -46,6 +46,9 @@ fn solve_with_proof(challenge: String, difficulty: u64) -> Vec<String> {
 
 // verify takes a challenge string, a proof, and a difficulty and returns true if the proof is valid.
 // Parallelization allows verification to be faster than solving.
+//
+// Note OS threads are used for concurrency here, 
+// but async may be more appropriate: https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html. 
 fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
 
     if proof[0] != challenge {
