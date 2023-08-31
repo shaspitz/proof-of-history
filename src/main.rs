@@ -31,15 +31,13 @@ fn main() {
 // while storing all hashes in the process. This serves as Solana's simple VDF (verifiable delay function).
 // This function has to run sequentially on a single core by nature. 
 //
-// TODO: look into cloning
-//
 // TODO: Expand this to accept arbitrary txs in indexed hashes. 
 fn solve_with_proof(challenge: String, difficulty: u64) -> Vec<String> {
     let mut hash = challenge;
     let mut proof = Vec::with_capacity(difficulty as usize);
     for _ in 0..difficulty {
-        hash = digest(hash.clone());
-        proof.push(hash.clone());  
+        hash = digest(hash);
+        proof.push(hash.clone()); // Pass clone to vector, as hash has been moved and is needed for future iterations.
     }
     proof
 }
@@ -49,6 +47,8 @@ fn solve_with_proof(challenge: String, difficulty: u64) -> Vec<String> {
 //
 // Note OS threads are used for concurrency here, 
 // but async may be more appropriate: https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html. 
+//
+// TODO: Look into ownership of chunks
 fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
 
     if proof[0] != challenge {
