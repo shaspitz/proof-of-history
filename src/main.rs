@@ -48,7 +48,7 @@ fn solve_with_proof(challenge: String, difficulty: u64) -> Vec<String> {
 // Note OS threads are used for concurrency here, 
 // but async may be more appropriate: https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html. 
 //
-// TODO: Look into ownership of chunks
+// TODO: reeval using String vs alternative
 fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
 
     if proof[0] != challenge {
@@ -60,13 +60,14 @@ fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
     // Assume 8 CPU cores, divide computations into 8 threads. 
     // Theoretically you could parallelize these computations further with CUDA or similar. 
     let chunk_size:usize = (difficulty as usize) / 8;
-    let chunks_owned: Vec<Vec<String>> = proof.chunks(chunk_size).map(|chunk| chunk.to_owned()).collect();
+    let chunks = proof.chunks(chunk_size);
 
-    for chunk in chunks_owned {
+    for chunk in chunks {
+        let chunk_owned = chunk.to_owned();
         let handle: JoinHandle<bool>= thread::spawn(move || {
-            for idx in 0..chunk.len()-1 {
-                let input_cln = chunk[idx].clone();
-                let output_cln = chunk[idx + 1].clone();
+            for idx in 0..chunk_owned.len()-1 {
+                let input_cln = chunk_owned[idx].clone();
+                let output_cln = chunk_owned[idx + 1].clone();
                 let hash = digest(input_cln);
                 if hash != output_cln {
                     return false
@@ -77,6 +78,7 @@ fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
         handles.push(handle);
     }
 
+    // Wait for threads to finish and return false if any hashes are invalid.
     for handle in handles {
         if !handle.join().unwrap() {
             return false
