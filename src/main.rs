@@ -47,8 +47,6 @@ fn solve_with_proof(challenge: String, difficulty: u64) -> Vec<String> {
 //
 // Note OS threads are used for concurrency here, 
 // but async may be more appropriate: https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html. 
-//
-// TODO: reeval using String vs alternative
 fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
 
     if proof[0] != challenge {
@@ -66,10 +64,10 @@ fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
         let chunk_owned = chunk.to_owned();
         let handle: JoinHandle<bool>= thread::spawn(move || {
             for idx in 0..chunk_owned.len()-1 {
-                let input_cln = chunk_owned[idx].clone();
-                let output_cln = chunk_owned[idx + 1].clone();
-                let hash = digest(input_cln);
-                if hash != output_cln {
+                let input = chunk_owned[idx].to_owned();
+                let expected_output = chunk_owned[idx + 1].to_owned();
+                let hash = digest(input);
+                if hash != expected_output {
                     return false
                 }
             }
