@@ -61,13 +61,14 @@ fn verify(challenge: String, proof: Vec<String>, difficulty: u64) -> bool {
     let chunks = proof.chunks(chunk_size);
 
     for chunk in chunks {
+        // Clone chunk to move into thread.
         let chunk_owned = chunk.to_owned();
         let handle: JoinHandle<bool>= thread::spawn(move || {
             for idx in 0..chunk_owned.len()-1 {
-                let input = chunk_owned[idx].to_owned();
-                let expected_output = chunk_owned[idx + 1].to_owned();
+                let input = &chunk_owned[idx];
+                let expected_output = &chunk_owned[idx + 1];
                 let hash = digest(input);
-                if hash != expected_output {
+                if hash != *expected_output {
                     return false
                 }
             }
